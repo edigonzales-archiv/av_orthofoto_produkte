@@ -28,19 +28,33 @@ for feature in layer:
     cmd += " -co 'BLOCKXSIZE=512' -co 'BLOCKYSIZE=512'"
     cmd += " -co 'PROFILE=GeoTIFF'"
     cmd += " " + infile + " " + outfile
-    print cmd
-    os.system(cmd)
+    #print cmd
+    #os.system(cmd)
     
     cmd = "/usr/local/gdal/gdal-dev/bin/gdaladdo -r average "
     cmd += "--config COMPRESS_OVERVIEW DEFLATE --config GDAL_TIFF_OVR_BLOCKSIZE 512 " 
     cmd += outfile + " 2 4 8 16 32 64 128"
-    os.system(cmd)    
+    #os.system(cmd)    
     
 infiles = os.path.join(OUTPATH, "*.tif")
-outfile = os.path.join(OUTPATH, "ortho1993rgb.vrt")
+outfile = os.path.join(OUTPATH, "ortho1993sw.vrt")
 cmd = "/usr/local/gdal/gdal-dev/bin/gdalbuildvrt " + outfile + " " + infiles 
-os.system(cmd)
+#os.system(cmd)
 
+infile = os.path.join(OUTPATH, "ortho1993sw.vrt")
+outfile = os.path.join(OUTPATH, "ortho1993sw_5m.tif")
+cmd = "/usr/local/gdal/gdal-dev/bin/gdalwarp -tr 5.0 5.0 -of GTiff"
+cmd += " -co 'TILED=YES' -co 'PROFILE=GeoTIFF'"
+cmd += " -co 'COMPRESS=DEFLATE' -co 'BLOCKXSIZE=512' -co 'BLOCKYSIZE=512'" 
+cmd += " -wo NUM_THREADS=ALL_CPUS -s_srs epsg:21781 -t_srs epsg:21781"
+cmd += " " + infile + " " + outfile
+print cmd
+#os.system(cmd)
+
+cmd  = "/usr/local/gdal/gdal-dev/bin/gdaladdo -r nearest"
+cmd += " --config COMPRESS_OVERVIEW LZW --config GDAL_TIFF_OVR_BLOCKSIZE 512"
+cmd += " " + outfile + " 2 4 8 16 32 64 128"
+#os.system(cmd)
 
 
 

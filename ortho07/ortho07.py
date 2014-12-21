@@ -25,7 +25,7 @@ for feature in layer:
     cmd += " -co 'TILED=YES' -co 'COMPRESS=JPEG'"
     cmd += " -co 'BLOCKXSIZE=512' -co 'BLOCKYSIZE=512'"
     cmd += " -co 'PROFILE=GeoTIFF' -setalpha"
-    cmd += " -white -near 15 -o " + outfile
+    cmd += " -nb 0 -white -near 15 -o " + outfile
     cmd += " " + infile
     #print cmd
     os.system(cmd)
@@ -40,6 +40,21 @@ outfile = os.path.join(OUTPATH, "ortho2007rgb.vrt")
 cmd = "/usr/local/gdal/gdal-dev/bin/gdalbuildvrt " + outfile + " " + infiles 
 os.system(cmd)
 
+infile = os.path.join(OUTPATH, "ortho2007rgb.vrt")
+outfile = os.path.join(OUTPATH, "ortho2007rgb_5m.tif")
+cmd = "/usr/local/gdal/gdal-dev/bin/gdalwarp -tr 5.0 5.0 -of GTiff"
+cmd += " -co 'TILED=YES' -co 'PROFILE=GeoTIFF'"
+cmd += " -co 'COMPRESS=DEFLATE' -co 'BLOCKXSIZE=512' -co 'BLOCKYSIZE=512'" 
+cmd += " -wo NUM_THREADS=ALL_CPUS -s_srs epsg:21781 -t_srs epsg:21781"
+cmd += " " + infile + " " + outfile
+print cmd
+os.system(cmd)
+
+cmd  = "/usr/local/gdal/gdal-dev/bin/gdaladdo -r nearest"
+cmd += " --config COMPRESS_OVERVIEW DEFLATE --config GDAL_TIFF_OVR_BLOCKSIZE 512"
+cmd += " " + outfile + " 2 4 8 16 32 64 128"
+print cmd
+os.system(cmd)
 
 
 
