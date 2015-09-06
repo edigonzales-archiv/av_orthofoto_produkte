@@ -38,8 +38,8 @@ def main():
         infileName = feature.GetField("location")
         baseName = os.path.basename(infileName)
 
-        if baseName != "611233_12_5cm.tif":
-            continue
+        #if baseName != "611233_12_5cm.tif":
+        #    continue
 
         print "*** " + baseName + " ***"
 
