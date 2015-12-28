@@ -16,8 +16,10 @@ T_SRS = "+proj=somerc +lat_0=46.952405555555555N +lon_0=7.439583333333333E +ellp
 
 #OUTPUT_DIR = "/Users/stefan/tmp/"
 INPUT_DIR = "/home/stefan/Geodaten/04_DOP/rgb_lv95"
+#OUTPUT_DIR = "/opt/Geodaten/ch/so/kva/orthofoto/2015_bl/rgb/12_5cm"
 OUTPUT_DIR = "/home/stefan/Geodaten/04_DOP/rgb_lv03"
-TILEINDEX = "/home/stefan/Geodaten/04_DOP/ortho2015_bl.shp"
+#TILEINDEX = "/home/stefan/Geodaten/04_DOP/ortho2015_bl.shp"
+TILEINDEX = "/home/stefan/Geodaten/04_DOP/rgb_lv95/ortho2015_bl.shp"
 
 # Since we cannot use 'nearest neighbour', see: http://lists.osgeo.org/pipermail/gdal-dev/2015-September/042531.html
 # 'lanczos' seems best, see http://gis.stackexchange.com/questions/10931/what-is-lanczos-resampling-useful-for-in-a-spatial-context
@@ -60,9 +62,9 @@ def main():
         vrt = os.path.join(INPUT_DIR, "ortho2015rgb_nonalpha.vrt")
         cmd = "/usr/local/gdal/gdal-dev/bin/gdalwarp -overwrite -s_srs \"" + T_SRS + "\" -t_srs \"" + S_SRS + "\" -te "  + str(minX) + " " +  str(minY) + " " +  str(maxX) + " " +  str(maxY)
         cmd += " -tr " + str(RES_M) + " " + str(RES_M) + " -co 'TILED=YES' -co 'PROFILE=GeoTIFF'"
-        cmd += " -co 'INTERLEAVE=PIXEL' -co 'COMPRESS=JPEG' -co 'PHOTOMETRIC=YCBCR' -co 'BLOCKXSIZE=256' -co 'BLOCKYSIZE=256'"
+        #cmd += " -co 'INTERLEAVE=PIXEL' -co 'COMPRESS=JPEG' -co 'PHOTOMETRIC=YCBCR' -co 'BLOCKXSIZE=256' -co 'BLOCKYSIZE=256'"
+        cmd += " -co 'INTERLEAVE=PIXEL' -co 'COMPRESS=DEFLATE' -co 'PREDICTOR=2' -wo 'OPTIMIZE_SIZE=YES' -co 'BLOCKXSIZE=256' -co 'BLOCKYSIZE=256'"
         cmd += " -r " + METHOD + " " + vrt + " " + outFileName
-        #print cmd
         os.system(cmd)
 
         cmd = "gdal_edit.py -a_srs EPSG:21781 " + outFileName
@@ -70,9 +72,12 @@ def main():
         os.system(cmd)
 
         # Resampling method does not really matter here.
-        cmd = "gdaladdo -r average --config COMPRESS_OVERVIEW JPEG --config PHOTOMETRIC_OVERVIEW YCBCR --config INTERLEAVE_OVERVIEW PIXEL " + outFileName + " 2 4 8 16 32 64 128"
+        #cmd = "gdaladdo -r average --config COMPRESS_OVERVIEW JPEG --config PHOTOMETRIC_OVERVIEW YCBCR --config INTERLEAVE_OVERVIEW PIXEL " + outFileName + " 2 4 8 16 32 64 128"
+        cmd = "gdaladdo -r average --config COMPRESS_OVERVIEW LZW  --config INTERLEAVE_OVERVIEW PIXEL " + outFileName + " 2 4 8 16 32 64 128"
         #print cmd
-        os.system(cmd)
+        #os.system(cmd)
+        
+        sys.exit(1)
 
 
     # 2) Create VRT and the 5m overview image.
